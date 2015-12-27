@@ -1,0 +1,4 @@
+/target
+*.log
+/resources/public/js/*
+.lein-repl-history

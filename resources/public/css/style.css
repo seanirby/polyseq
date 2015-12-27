@@ -1,0 +1,93 @@
+body {
+    font-family: Helvetica;
+    background-color: #3F3F3F;
+    color: white;
+}
+
+.circle-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.circle {
+    border-style: solid;
+    border-color: white;
+    position: absolute;}
+
+.hand {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    height: 100%;
+    width: 1px;
+}
+
+.hand > .hand-top {
+    position: absolute;
+    width: 100%;
+    top: 0px;
+    bottom: 50%;
+    background-color: white;
+}
+
+.point {
+    border: 1px solid white;
+    cursor: pointer;
+    position: absolute;
+}
+
+/* TODO: Add browser specific stuff here */
+@-webkit-keyframes throb {
+    from {transform: scale(1, 1);
+	  border-color: white;
+	  background-color: white;}
+    to {transform: scale(1.5,1.5);
+	border-color: red;
+	background-color: red;}
+}
+
+.playing {
+    -webkit-animation: throb 0.1s linear 0s 2 alternate;
+}
+
+.tooltip {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 250px;
+    height: 100%;
+    float: right;
+    background-color: #3F3F3F;
+    z-index: 1000;
+    opacity: 0.90;
+}
+
+.key-container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 50px;
+}
+
+.key {
+    right: 0;
+    height: 10px;
+    width: 100px;
+}
+
+.key.active {
+    background-color: red !important;
+}
+
+.key:hover {
+    background-color: blue !important;
+}
+
+.key.key-white {
+    background-color: white;
+}
+
+.key.key-black {
+    background-color: black;
+}
