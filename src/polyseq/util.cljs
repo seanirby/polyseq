@@ -36,3 +36,35 @@
 
 (defn get-beat-period [n bpm]
   (/ (* (bpm-to-period bpm) 4) n))
+
+(defn make-beat-data [beat]
+  {:beat beat
+   :frequency (first (shuffle [110 220 440 880]))
+   :is-active (first (shuffle [true false]))
+   :is-playing false})
+
+(defn make-circle-data [frequency]
+  {:frequency frequency
+   :radius (* frequency 20)
+   :offset 0
+   :beats (mapv make-beat-data (range 0 frequency 1))})
+
+(defn point-style [angle radius is-active]
+  (let [color (if is-active "white" "#3F3F3F")
+        point-radius 7
+        [x y] (get-css-coordinates angle radius point-radius)]
+    #js {:left x
+         :top y
+         :width (px (* 2 point-radius)) 
+         :height (px (* 2 point-radius))
+         :borderRadius (px point-radius)
+         :backgroundColor color}))
+
+(defn circle-style [frequency radius offset]
+  #js {:left (str "calc(50% - " (px radius) ")")
+       :top (str "calc(50% - " (px radius) ")")
+       :width (px (* 2 radius)) 
+       :height (px (* 2 radius))
+       :borderWidth (px 1) 
+       :borderRadius (px radius)  
+       :zIndex (- 100 frequency)})
