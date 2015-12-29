@@ -39,16 +39,26 @@ body {
 
 /* TODO: Add browser specific stuff here */
 @-webkit-keyframes throb {
-    from {transform: scale(1, 1);
-	  border-color: white;
-	  background-color: white;}
-    to {transform: scale(1.5,1.5);
+    from {transform: scale(1.5,1.5);
 	border-color: red;
 	background-color: red;}
+
+    to {transform: scale(1, 1);
+	  border-color: white;
+	  background-color: white;}
 }
 
 .playing {
-    -webkit-animation: throb 0.1s linear 0s 2 alternate;
+    -webkit-animation: throb 0.5s linear 0s 1;
+}
+
+.controls-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: #3F3F3F;
+    opacity: 0.9;
+    z-index: 1000;
 }
 
 .controls {

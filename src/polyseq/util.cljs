@@ -39,8 +39,8 @@
 
 (defn make-beat-data [beat]
   {:beat beat
-   :frequency (first (shuffle [110 220 440 880]))
-   :is-active (first (shuffle [true false]))
+   :sound-params nil
+   :is-active false
    :is-playing false})
 
 (defn make-circle-data [frequency]
