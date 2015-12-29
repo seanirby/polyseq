@@ -8,10 +8,12 @@
 
 (enable-console-print!)
 
+(def waves {:sin "sin" :saw "saw" :triangle "tri" :pulse "pulse"})
 (let [on-end #(this-as this (.pause this))]
+  (def preview-wave (:sin waves))
   (def preview-release 500)
   (def preview-frequency 440)
-  (def preview-osc (js/T "saw" #js {:mul 0.25 :f preview-frequency}))
+  (def preview-osc (js/T  preview-wave #js {:mul 0.25 :f preview-frequency}))
   (def preview-env (.on (js/T "env"
                           #js {:table [1 [0, preview-release]]
                                :releaseNode 0}
@@ -25,12 +27,12 @@
 (def num-circles 15)
 (defonce app-state 
   (atom {:sequence-controls {:bpm 60
-                    :on false}
+                             :on false}
          :circles (mapv util/make-circle-data (range 1 (+ 1 num-circles) 1))
-         :sound-controls {:display true
-                   :mode :writing
-                   :release preview-release
-                   :frequency preview-frequency}}))
+         :sound-controls {:mode :writing
+                          :wave preview-wave
+                          :release preview-release
+                          :frequency preview-frequency}}))
 
 (defn get-key-classes [color is-active]
   (let [base-class "key "
@@ -38,7 +40,8 @@
         active-class (if is-active "key-active" "")]
     (str base-class color-class active-class)))
 
-(defn preview-sound [frequency release]
+(defn preview-sound [wave frequency release]
+  (set! (.-wave preview-osc) wave)
   (set! (.-freq preview-osc) frequency)
   (set! (.-table preview-env) (clj->js [1 [0 release]]))
   (.bang preview-env)
@@ -54,12 +57,11 @@
   (let [on-end #(this-as this (.pause this))]
     (.on (get-sound-enveloped (get-sound-wave frequency) release)  "ended" on-end)))
 
-(defn key-view [{:keys [color frequency]} sound-controls]
+(defn key-view [{:keys [color frequency]} {:keys [wave release] :as sound-controls}]
   (let [f (:frequency sound-controls)
-        release (:release sound-controls)
         classes (get-key-classes color (= frequency f))]
     (dom/div #js {:className classes
-                  :onMouseOver #(preview-sound frequency release)})))
+                  :onMouseOver #(preview-sound wave frequency release)})))
 
 (defn octave-view [octave sound-controls]
   (dom/div #js {:className "octave"} (mapv #(key-view % sound-controls) octave)))
@@ -73,26 +75,37 @@
                      :disabled (not is-active)
                      :onClick #(om/update! data :mode opposite)} (clojure.string/upper-case (name mode)))))
 
+(defn build-wave-option [data wave]
+  (dom/option #js {:value (name wave)} (wave waves)))
+
+(defn handle-wave-change [e data]
+  (let [k (keyword (js->clj (.. e -target -value)))]
+    (om/update! data :wave (k waves))))
+
 (defn sound-controls-view [data owner]
   (reify
     om/IRender
     (render [_]
-      (when (:display data)
-        (dom/div #js {:className "controls"}
-          [(dom/div nil (str "Frequency: " (:frequency data)))
-           (dom/div #js {:className "piano"}
-             (mapv #(octave-view % data) (partition 12 util/piano)))
-           (dom/label nil "Release: "
-             (dom/input #js {:type "range"
-                             :min "5"
-                             :max "2000"
-                             :value (:release data)
-                             :onChange #(om/update! data :release (int (js->clj (.. % -target -value))))}))
-           (dom/div nil "Mode: "
-             (build-mode-button :reading data)
-             (build-mode-button :writing data))
-           (dom/div nil
-             (dom/button nil "Preview"))])))))
+      (dom/div #js {:className "controls"}
+        [(dom/div nil (str "Frequency: " (:frequency data)))
+         (dom/div #js {:className "piano"}
+           (mapv #(octave-view % data) (partition 12 util/piano)))
+         (dom/div nil
+           (dom/label nil "Wave: "
+             (dom/select #js {:value (:wave data)
+                              :onChange #(handle-wave-change % data)}
+               (mapv (partial build-wave-option data) (keys waves)))))
+         (dom/label nil "Release: "
+           (dom/input #js {:type "range"
+                           :min "5"
+                           :max "2000"
+                           :value (:release data)
+                           :onChange #(om/update! data :release (int (js->clj (.. % -target -value))))}))
+         (dom/div nil "Mode: "
+           (build-mode-button :reading data)
+           (build-mode-button :writing data))
+         (dom/div nil
+           (dom/button nil "Preview"))]))))
 
 (defn point-view [{:keys [beat frequency is-active is-playing circle-frequency circle-radius] :as data} owner]
   (reify
