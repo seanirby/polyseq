@@ -51,43 +51,31 @@ body {
     -webkit-animation: throb 0.1s linear 0s 2 alternate;
 }
 
-.tooltip {
-    position: absolute;
-    right: 0;
-    bottom: 0;
+.controls {
     width: 250px;
-    height: 100%;
-    float: right;
-    background-color: #3F3F3F;
-    z-index: 1000;
-    opacity: 0.90;
-}
-
-.key-container {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 50px;
+    padding: 5px;
+    border: 1px solid white;
 }
 
 .key {
-    right: 0;
-    height: 10px;
-    width: 100px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-left: 2px;
 }
 
-.key.active {
-    background-color: red !important;
+.key.key-active {
+    background-color: red;
 }
 
 .key:hover {
     background-color: blue !important;
 }
 
-.key.key-white {
+.key-white {
     background-color: white;
 }
 
-.key.key-black {
+.key-black {
     background-color: black;
 }
