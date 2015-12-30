@@ -28,9 +28,10 @@
         active-class (if is-active "key-active" "")]
     (str base-class color-class active-class)))
 
-(defn key-view [{:keys [color frequency]} {:keys [wave release] :as sound-params}]
+(defn key-view [{:keys [color frequency]} sound-params]
   (let [classes (get-key-classes color (= frequency (:frequency sound-params)))]
     (dom/div #js {:className classes
+                  :onClick #(om/update! sound-params (merge sound-params {:frequency frequency}))
                   :onMouseOver #(do (sound/update! preview-sound (merge sound-params {:frequency frequency}))
                                     (sound/play! preview-sound))})))
 
@@ -57,7 +58,6 @@
   (reify
     om/IRender
     (render [_]
-      (println "rendering again")
       (dom/div #js {:className "controls"}
         [(dom/div nil (str "Frequency: " (:frequency sound-params)))
          (dom/div #js {:className "piano"}
