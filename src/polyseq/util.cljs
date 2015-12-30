@@ -10,6 +10,9 @@
                                        [c f] first-octave-keys]
                                    {:color c :frequency (* m f)}))))
 
+(defn qualify-str [s qualifier]
+  (str qualifier "-" s))
+
 (defn px [s]
   (str s "px"))
 
@@ -37,17 +40,20 @@
 (defn get-beat-period [n bpm]
   (/ (* (bpm-to-period bpm) 4) n))
 
-(defn make-beat-data [beat]
+(defn make-beat [beat]
   {:beat beat
    :sound-params nil
    :is-active false
    :is-playing false})
 
-(defn make-circle-data [frequency]
+(defn make-circle [frequency]
   {:frequency frequency
    :radius (* frequency 20)
    :offset 0
-   :beats (mapv make-beat-data (range 0 frequency 1))})
+   :beats (mapv make-beat (range 0 frequency 1))})
+
+(defn make-circles [frequency]
+  (mapv make-circle (range 1 (+ 1 frequency) 1)))
 
 (defn point-style [angle radius is-active]
   (let [color (if is-active "white" "#3F3F3F")
@@ -68,3 +74,9 @@
        :borderWidth (px 1) 
        :borderRadius (px radius)  
        :zIndex (- 100 frequency)})
+
+(defn get-key-classes [color is-active]
+  (let [base "key"
+        color (qualify-str (name color) base)
+        active (when is-active (qualify-str "active" base))]
+    (apply str (interpose " " [base color active]))))

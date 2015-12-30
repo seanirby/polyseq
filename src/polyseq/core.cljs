@@ -11,32 +11,27 @@
 
 (def preview-sound (sound/build #(this-as this (.pause this))))
 (def angle-chan (chan))
-(def angle-mult (mult angle-chan))
 (def control-chan (chan))
+(def angle-mult (mult angle-chan))
 (def control-mult (mult control-chan))
 (def num-circles 15)
+
 (defonce app-state 
-  (atom {:sequence-controls {:bpm 60
+  (atom {:circles (util/make-circles num-circles)
+         :sequence-controls {:bpm 60
                              :on false}
-         :circles (mapv util/make-circle-data (range 1 (+ 1 num-circles) 1))
          :sound-controls {:mode :writing
                           :sound-params (:params preview-sound)}}))
 
-(defn get-key-classes [color is-active]
-  (let [base-class "key "
-        color-class (if (= color :white) "key-white " "key-black ")
-        active-class (if is-active "key-active" "")]
-    (str base-class color-class active-class)))
+(defn key-view [{:keys [color frequency]} data]
+  (let [is-active (= frequency (:frequency data))]
+    (dom/div #js {:className (util/get-key-classes color is-active)
+                  :onClick #(om/update! data (merge data {:frequency frequency}))
+                  :onMouseOver #((sound/update! preview-sound (merge data {:frequency frequency}))
+                                 (sound/play! preview-sound))})))
 
-(defn key-view [{:keys [color frequency]} sound-params]
-  (let [classes (get-key-classes color (= frequency (:frequency sound-params)))]
-    (dom/div #js {:className classes
-                  :onClick #(om/update! sound-params (merge sound-params {:frequency frequency}))
-                  :onMouseOver #(do (sound/update! preview-sound (merge sound-params {:frequency frequency}))
-                                    (sound/play! preview-sound))})))
-
-(defn octave-view [octave sound-params]
-  (dom/div #js {:className "octave"} (mapv #(key-view % sound-params) octave)))
+(defn octave-view [octave data]
+  (dom/div #js {:className "octave"} (mapv #(key-view % data) octave)))
 
 (defn build-mode-button [mode data]
   (let [base-class "mode-btn"
@@ -45,7 +40,8 @@
         classes (if is-active (str base-class " active") base-class)]
     (dom/button #js {:className classes
                      :disabled (not is-active)
-                     :onClick #(om/update! data :mode opposite)} (clojure.string/upper-case (name mode)))))
+                     :onClick #(om/update! data :mode opposite)}
+      (clojure.string/upper-case (name mode)))))
 
 (defn build-wave-option [wave]
   (dom/option #js {:value (name wave)} (wave sound/waves)))
@@ -65,7 +61,7 @@
          (dom/div nil
            (dom/label nil "Wave: "
              (dom/select #js {:value (name (:wave sound-params))
-                              :onChange #(do (println (.. % -target -value)) (handle-wave-change % sound-params))}
+                              :onChange #(handle-wave-change % sound-params)}
                (mapv build-wave-option (keys sound/waves)))))
          (dom/label nil "Release: "
            (dom/input #js {:type "range"
