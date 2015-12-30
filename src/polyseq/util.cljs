@@ -1,4 +1,5 @@
-(ns polyseq.util)
+(ns polyseq.util
+  (:require [om.core :as om]))
 
 (def penta (mapv #(* 4 %) [54 64 72 81 96 108]))
 
@@ -9,6 +10,9 @@
              (sort-by :frequency (for [m octave-multipliers
                                        [c f] first-octave-keys]
                                    {:color c :frequency (* m f)}))))
+
+(defn get-root-sub-cursor [app-state k]
+  (om/ref-cursor (k (om/root-cursor app-state))))
 
 (defn qualify-str [s qualifier]
   (str qualifier "-" s))
@@ -55,10 +59,10 @@
 (defn make-circles [frequency]
   (mapv make-circle (range 1 (+ 1 frequency) 1)))
 
-(defn point-style [angle radius is-active]
+(defn point-style [angle circle-radius is-active]
   (let [color (if is-active "white" "#3F3F3F")
         point-radius 7
-        [x y] (get-css-coordinates angle radius point-radius)]
+        [x y] (get-css-coordinates angle circle-radius point-radius)]
     #js {:left x
          :top y
          :width (px (* 2 point-radius)) 
@@ -80,3 +84,6 @@
         color (qualify-str (name color) base)
         active (when is-active (qualify-str "active" base))]
     (apply str (interpose " " [base color active]))))
+
+(defn beat-to-angle [beat frequency]
+  (* beat (/ 360 frequency)))
