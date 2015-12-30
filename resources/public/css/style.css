@@ -13,7 +13,8 @@ body {
 .circle {
     border-style: solid;
     border-color: white;
-    position: absolute;}
+    position: absolute;
+}
 
 .hand {
     position: absolute;
@@ -54,7 +55,7 @@ body {
 
 .controls-container {
     position: absolute;
-    left: 0;
+    right: 0;
     top: 0;
     background-color: #3F3F3F;
     opacity: 0.9;

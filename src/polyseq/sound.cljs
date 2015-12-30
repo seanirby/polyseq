@@ -27,8 +27,6 @@
      {:osc osc :env env :sound env :params params})))
 
 (defn update! [{:keys [osc env sound] :as this} {:keys [wave frequency release] :as params}]
-  (println this)
-  (println params)
   (set! (.-wave osc) (wave waves))
   (set! (.-freq osc) frequency)
   (set! (.-table env) (clj->js [1 [0 release]]))
